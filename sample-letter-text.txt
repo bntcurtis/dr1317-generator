@@ -1,0 +1,23 @@
+{{date}}
+
+Dear {{firstName}},
+
+Thank you so much for your donation of {{amount}} on {{donationDate}} to Our Nonprofit Organization!
+
+We could not have accomplished our goal without donors like you.
+
+Your gift supports our mission to provide high-quality early childhood education and care to families in our community. With your help, we can continue expanding our programs and reaching more children.
+
+The new facility greatly expands our capacity to grow our programs for children, adults, families, and groups. We are excited about the positive impact we can make together.
+
+"This organization has been a blessing for our family. The quality of care and education our children receive is exceptional."
+- Parent Testimonial
+
+Now more than ever, we need your support! Together, we will build a positive future for children and families in our community.
+
+Thank you and enjoy your day.
+
+{{preparerName}}
+{{preparerTitle}}
+
+*Our organization is a 501(c)3 non-profit organization, and your donation is 100% tax deductible. It may also be eligible for the Colorado Child Care Tax Credit. Please consult your tax advisor. Note that no goods or services were exchanged for this contribution. This letter may be used for your IRS tax records. Tax ID # 12-3456789.
