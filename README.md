@@ -21,9 +21,7 @@ Version 5 is aligned to the current Colorado DR 1317 layout (09/18/25 form desig
 ## Main File
 
 Use:
-- `dr1317-generator-v5.html`
-
-Other HTML files may be older variants.
+- `dr1317-generator.html`
 
 ## Required Inputs
 
@@ -142,7 +140,7 @@ If campaign is blank, default is `WBNC`.
 
 ## Quick Start
 
-1. Open `dr1317-generator-v5.html` in a modern browser.
+1. Open `dr1317-generator.html` in a modern browser.
 2. Fill organization info (Section B defaults can be edited).
 3. Fill signer info (Section D).
 4. Upload signature image.
@@ -163,9 +161,6 @@ Check:
 - You are using the correct 4-page flat DR 1317 template.
 - Signature file is a valid PNG/JPG.
 - Re-upload the signature (v5 trims margins on upload).
-
-### Thin red/orange line appears under signature
-The app does not draw a reference line in final output. If you see one, it came from a test/debug PDF, not generator output.
 
 ### Loaded donor count is wrong
 Check CSV header row and required columns for your format.
