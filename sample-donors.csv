@@ -1,6 +1,7 @@
-Date,First Name,Last Name,Street Address 1,City,State,Zip Code,Total Donation,Fees Covered,Intended Amount
-Nov 16, 2025,Jane,Smith,123 Main St,Denver,CO,80202,$105.00,$5.00,$100.00
-Nov 17, 2025,John,Doe,456 Oak Ave,Boulder,CO,80301,$52.50,$2.50,$50.00
-Nov 18, 2025,Maria,Garcia,789 Pine Rd,Colorado Springs,CO,80903,$525.00,$25.00,$500.00
-Nov 19, 2025,Robert,Johnson,321 Elm St,Fort Collins,CO,80521,$26.00,$1.00,$25.00
-Nov 20, 2025,Emily,Williams,654 Maple Dr,Aurora,CO,80010,$210.00,$10.00,$200.00
+Sample Donor Report Oct 19 2025 - Nov 20 2025,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Date,Time,First Name,Last Name,Email,Donation Type,Payment Type,Campaign,Honoree,From Name,Honor OR Memory,In Honor/Memory Message,Method of Delivery,Honoree Email,Honoree Address,Intended Amount,Donation Note,Fees Covered,Harness Fee,Stripe Fee,Total Donation,Phone Number,Street Address 1,Street Address 2,City,State,Zip Code,Country
+"Nov 16, 2025",10:14 AM,Jane,Smith,jane.smith@example.com,One-Time,Credit Card,Go Wild,,,,,none,,,$100.00,,$5.00,$0.50,$4.50,$105.00,7205550101,123 Main St,,Denver,CO,80202,United States
+"Nov 17, 2025",12:21 PM,John,Doe,john.doe@example.com,Monthly,Credit Card,Go Wild,,,,,none,,,$50.00,,$2.50,$0.30,$2.20,$52.50,3035550102,456 Oak Ave,,Boulder,CO,80301,United States
+"Nov 18, 2025",9:03 AM,Maria,Garcia,maria.garcia@example.com,One-Time,Credit Card,Go Wild,,,,,none,,,$500.00,,$25.00,$2.50,$22.50,$525.00,7195550103,789 Pine Rd,,Colorado Springs,CO,80903,United States
+"Nov 19, 2025",3:45 PM,Robert,Johnson,robert.johnson@example.com,Monthly,Credit Card,Go Wild,,,,,none,,,$25.00,,$1.00,$0.10,$0.90,$26.00,9705550104,321 Elm St,,Fort Collins,CO,80521,United States
+"Nov 20, 2025",11:30 AM,Emily,Williams,emily.williams@example.com,One-Time,Credit Card,Go Wild,,,,,none,,,$200.00,,$10.00,$1.00,$9.00,$210.00,3035550105,654 Maple Dr,,Aurora,CO,80010,United States
