@@ -1,6 +1,6 @@
 # Customization Guide (v5)
 
-This guide covers customizing `dr1317-generator-v5.html` for the current DR 1317 form design.
+This guide covers customizing `dr1317-generator.html` for the current DR 1317 form design.
 
 ## Scope
 
@@ -82,11 +82,6 @@ const maxH = sigBox.height - topPadding - bottomPadding;
 - Limit max signature height: change `sigBox.height` or paddings
 
 Keep `maxH` at or below the writable band height so signatures stay inside Section D.
-
-### Important
-
-The app does not intentionally draw a red/orange reference line in final output.
-If you see one, it came from a separate debug/test PDF.
 
 ## 4) DR 1317 Amount Logic
 
