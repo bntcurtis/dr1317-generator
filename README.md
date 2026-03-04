@@ -1,347 +1,206 @@
-# Colorado DR 1317 & Thank You Letter Generator
+# Colorado DR 1317 and Thank You Letter Generator
 
-A web-based tool for Colorado nonprofits to automatically generate Child Care Contribution Tax Credit forms (DR 1317) and personalized thank-you letters for donors.
+A browser-based tool that generates:
+- Colorado DR 1317 tax credit certification forms
+- Personalized thank-you letters
 
-## What it does
+Version 5 is aligned to the current Colorado DR 1317 layout (09/18/25 form design) and Wild Bear workflows.
 
-This single-file HTML application helps Colorado childcare nonprofits:
-- **Generate DR 1317 forms** — Colorado Child Care Contribution Tax Credit Certification forms with donor information, donation amounts, and credit calculations
-- **Create thank-you letters** — Personalized letters on your organization's letterhead with custom messaging
-- **Process donations in bulk** — Handle hundreds of donors at once with automatic PDF generation
-- **Support multiple CSV formats** — Works with exports from Harness, Colorado Gives Day, and other donation platforms
+## What This Version Does
 
-Instead of manually filling out forms or writing individual letters, process dozens or hundreds of donors in minutes.
+- Uses a 4-page flat DR 1317 template and automatically copies pages 3 and 4 into a 2-page output form.
+- Fills DR 1317 Sections A, B, C, and D using donor CSV data plus signer/org inputs.
+- Calculates DR 1317 amounts as whole dollars:
+  - Line 2 = `ceil(Intended Amount)`
+  - Line 3 = `ceil(Line 2 * 0.5)`
+- Places signature in Section D inside the signature band.
+- Auto-trims signature image margins (white/transparent edges) before embedding, so signature placement is consistent.
+- Generates thank-you letters from a PDF letterhead + text template with placeholders.
+- Supports individual PDF downloads or one ZIP download.
 
-## Features
+## Main File
 
-- ✅ **Single standalone HTML file** — No server, build process, or dependencies to install
-- ✅ **Runs entirely in your browser** — All processing happens locally; your donor data never leaves your computer
-- ✅ **Support for two CSV formats** — Automatically detects and handles Harness or Colorado Gives Day exports
-- ✅ **Batch processing** — Generate hundreds of documents without browser freezing
-- ✅ **Smart file naming** — `LastName_FirstName_DocType_Campaign_Date.pdf` format for easy organization
-- ✅ **ZIP download option** — Get all documents in a single ZIP file for large batches
-- ✅ **Signature embedding** — Automatically adds signature images to both forms and letters
-- ✅ **Responsive UI** — Works on desktop and tablet devices
-- ✅ **Progress tracking** — Real-time progress bar shows generation status
+Use:
+- `dr1317-generator-v5.html`
 
-## Use case
+Other HTML files may be older variants.
 
-This tool was built for Colorado nonprofits that qualify for the **Colorado Child Care Contribution Tax Credit** (C.R.S. 39-22-121). If your organization:
-- Provides licensed childcare or early childhood education in Colorado
-- Receives donations that qualify for the 50% state tax credit
-- Needs to issue DR 1317 forms to donors for tax filing
-- Wants to send personalized thank-you letters efficiently
+## Required Inputs
 
-...then this tool can save you hours of manual document preparation.
+### Always required
+- Donor CSV
+- Signature image (`.png`, `.jpg`, `.jpeg`)
+- At least one document type selected
 
-## Quick start
+### If generating DR 1317
+- DR 1317 template PDF (4-page flat template)
 
-### 1. Download the tool
+### If generating thank-you letters
+- Letterhead PDF
+- Letter text template (`.txt`)
 
-Download `dr1317-generator.html` from this repository. That's it — it's a single file that contains everything needed.
+## DR 1317 Template Requirement
 
-### 2. Open it in your browser
+Use the 4-page flat template for the new form design.
 
-Simply double-click the HTML file to open it in your default browser, or drag it into an open browser window.
+The app expects:
+- Template page 3 = DR 1317 output page 1 (Sections A and B)
+- Template page 4 = DR 1317 output page 2 (Sections C and D)
 
-### 3. Prepare your files
+If you upload a different layout, field placement and signature location will be off.
 
-You'll need:
-- **CSV file** with donor data (exported from your donation platform)
-- **DR 1317 template PDF** (blank form — included in this repo)
-- **Letterhead PDF** (your organization's letterhead template)
-- **Letter text template** (`.txt` file with placeholders — example included)
-- **Signature image** (`.png` file with transparent background)
+## CSV Formats Supported
 
-### 4. Fill in the form
+The app auto-detects format from headers.
 
-1. Enter your organization information (name, license number, EIN, address, phone)
-2. Enter signer information (name, title, campaign name)
-3. Upload your signature image
-4. Upload your donor CSV file
-5. Select which documents to generate (DR 1317, thank-you letters, or both)
-6. Upload the required templates
-7. Choose output format (individual PDFs or ZIP file)
-8. Click "Generate Documents"
+### 1) Harness format
+Expected columns:
+- `Date`
+- `First Name`
+- `Last Name`
+- `Street Address 1`
+- `City`
+- `State`
+- `Zip Code`
+- `Total Donation`
+- `Fees Covered`
+- `Intended Amount`
 
-### 5. Review and distribute
+### 2) Colorado Gives Day format
+Expected columns:
+- `Date`
+- `Donor First Name`
+- `Donor Last Name`
+- `Address`
+- `City`
+- `State`
+- `Zip`
+- `Total Donation`
+- `Covered Cost`
+- `Amount`
 
-The tool generates PDFs that download automatically. Review a few to verify accuracy, then distribute to your donors.
+### 3) Auto-Gen format
+Expected columns:
+- `Date`
+- `First Name`
+- `Last Name`
+- `Mailing Address`
+- `City`
+- `State`
+- `ZIP`
+- `Total Donation`
+- `Fees Covered`
+- `Intended Amt`
 
-## CSV format requirements
+## Signer and Org Inputs Used in DR 1317
 
-The tool supports two CSV formats:
+### Organization information (Section B)
+- Organization name
+- FEIN
+- CDEC license number
+- Phone
+- Street address
+- City
+- County
+- State
+- ZIP
 
-### Harness format
+### Signer information (Section D)
+- Name
+- Title
+- Phone
+- Signing date (`MM/DD/YY`)
+- Signature image
 
-Required columns:
-- `Date` — Donation date (e.g., "Nov 16, 2025")
-- `First Name` — Donor first name
-- `Last Name` — Donor last name
-- `Street Address 1` — Donor address
-- `City` — Donor city
-- `State` — Donor state (2-letter code)
-- `Zip Code` — Donor zip code
-- `Total Donation` — Total amount donated (e.g., "$15.92")
-- `Fees Covered` — Non-qualifying fees (e.g., "$0.92")
-- `Intended Amount` — Qualifying donation amount (e.g., "$15.00")
+## Letter Template Placeholders
 
-### Colorado Gives Day format
+Supported placeholders in the `.txt` letter template:
+- `{{date}}`
+- `{{firstName}}`
+- `{{amount}}`
+- `{{donationDate}}`
+- `{{preparerName}}`
+- `{{preparerTitle}}`
 
-Required columns:
-- `Date` — Donation date (MM/DD/YYYY format)
-- `Donor First Name` — Donor first name
-- `Donor Last Name` — Donor last name
-- `Address` — Donor address
-- `City` — Donor city
-- `State` — Donor state (2-letter code)
-- `Zip` — Donor zip code
-- `Total Donation` — Total amount including fees
-- `Fees Covered` — "Yes" or "No"
-- `Covered Cost` — Fee amount if covered
-- `Amount` — Qualifying donation amount
+Notes:
+- `{{amount}}` uses `Total Donation` (includes covered fees).
+- Signature placement in letters is triggered by the exact line:
+  - `Thank you and enjoy your day.`
 
-The tool automatically detects which format you're using.
+## Output File Naming
 
-## File structure
+### DR 1317 PDFs
+`LastName_FirstName_DR1317_Campaign_YYYYMMDD.pdf`
 
-```
-dr1317-generator/
-├── dr1317-generator.html          (Main application - single file)
-├── README.md                       (This file)
-├── LICENSE                         (MIT License)
-├── templates/
-│   ├── dr1317-blank-template.pdf  (Blank DR 1317 form)
-│   ├── sample-letterhead.pdf      (Example letterhead)
-│   └── sample-letter-text.txt     (Example letter template)
-├── examples/
-│   ├── sample-donors.csv          (Example CSV with fake data)
-│   └── sample-signature.png       (Example signature image)
-└── docs/
-    └── CUSTOMIZATION.md           (Detailed customization guide)
-```
+### Thank-you PDFs
+`LastName_FirstName_TY_Campaign_YYYYMMDD.pdf`
 
-## Letter text template placeholders
+### ZIP output
+`WBNC_Donor_Documents_Campaign_YYYYMMDD.zip`
 
-Your letter text template (`.txt` file) can use these placeholders:
+If campaign is blank, default is `WBNC`.
 
-- `{{date}}` — Current date (when generated)
-- `{{firstName}}` — Donor's first name
-- `{{amount}}` — Donation amount (formatted as $XX.XX)
-- `{{donationDate}}` — Date of donation (formatted as "November 16, 2025")
-- `{{preparerName}}` — Signer's name
-- `{{preparerTitle}}` — Signer's title
+## Quick Start
 
-Example:
-```
-{{date}}
-
-Dear {{firstName}},
-
-Thank you so much for your donation of {{amount}} on {{donationDate}} to Our Nonprofit.
-
-We could not have accomplished our goal without donors like you.
-
-Thank you and enjoy your day.
-
-{{preparerName}}
-{{preparerTitle}}
-```
-
-## Technical details
-
-### How it works
-
-1. **All processing is local** — The tool runs entirely in your browser using JavaScript. No data is sent to any server.
-2. **PDF generation** — Uses [pdf-lib](https://pdf-lib.js.org/) to fill forms and create documents
-3. **ZIP creation** — Uses [JSZip](https://stuk.github.io/jszip/) to bundle multiple PDFs
-4. **No installation needed** — pdf-lib and JSZip are embedded directly in the HTML file
-5. **Browser compatibility** — Works in Chrome, Firefox, Safari, and Edge (recent versions)
-
-### File sizes
-
-- Main HTML file: ~656 KB (includes embedded libraries)
-- Generated DR 1317: ~75-100 KB per document
-- Generated thank-you letter: ~200-250 KB per document (depends on letterhead complexity)
-
-### Performance
-
-- Small batches (1-20 donors): Instant
-- Medium batches (20-100 donors): 1-3 minutes
-- Large batches (100-300 donors): 5-12 minutes
-- Very large batches (300+ donors): Consider splitting into multiple runs
-
-The tool processes documents in batches of 10 with short pauses to keep your browser responsive.
-
-## Customization
-
-### Creating your letterhead PDF
-
-1. Design your letterhead in your preferred tool (Word, Google Docs, InDesign, etc.)
-2. Include your logo, organization name, board members, address, etc.
-3. **Leave blank space** in the main area for letter text (roughly 4-5 inches wide × 7-8 inches tall)
-4. Export as PDF
-5. Use this PDF as your letterhead template
-
-### Creating a signature image
-
-1. Sign on white paper with a dark pen
-2. Scan or photograph at high resolution
-3. Use an image editor (Photoshop, GIMP, Photopea) to:
-   - Crop tightly around the signature
-   - Remove the white background (make it transparent)
-   - Save as PNG format
-4. Upload to the tool
-
-### Adjusting signature size
-
-If signatures appear too small or large in generated documents, you can adjust the maximum dimensions in the HTML file. Look for these lines in the code:
-
-For DR 1317 forms:
-```javascript
-const maxWidth = 200;  // Adjust this
-const maxHeight = 50;  // Adjust this
-```
-
-For thank-you letters:
-```javascript
-const maxSigWidth = 200;  // Adjust this
-const maxSigHeight = 60;  // Adjust this
-```
+1. Open `dr1317-generator-v5.html` in a modern browser.
+2. Fill organization info (Section B defaults can be edited).
+3. Fill signer info (Section D).
+4. Upload signature image.
+5. Upload donor CSV.
+6. Select document types.
+7. Upload required template files.
+8. Choose output format (individual or ZIP).
+9. Generate documents.
+10. Review a few samples before distribution.
 
 ## Troubleshooting
 
-### "Generate" button won't activate
+### Generate button stays disabled
+Check required inputs based on selected document types.
 
-Check that you've uploaded:
-- ✅ CSV file (shows "Loaded X donors")
-- ✅ Signature image
-- ✅ Selected at least one document type
-- ✅ DR 1317 template (if generating forms)
-- ✅ Letterhead PDF and letter text (if generating letters)
-- ✅ Filled in organization information fields
+### Signature appears too high/low in DR 1317
+Check:
+- You are using the correct 4-page flat DR 1317 template.
+- Signature file is a valid PNG/JPG.
+- Re-upload the signature (v5 trims margins on upload).
 
-### Wrong number of donors loaded
+### Thin red/orange line appears under signature
+The app does not draw a reference line in final output. If you see one, it came from a test/debug PDF, not generator output.
 
-Your CSV might have:
-- Extra blank rows (automatically skipped)
-- Header rows in wrong position
-- Missing required columns
+### Loaded donor count is wrong
+Check CSV header row and required columns for your format.
 
-Open your CSV in a text editor or spreadsheet to verify the structure.
+### Wrong amounts in DR 1317
+Confirm CSV `Intended Amount` (or `Intended Amt` for Auto-Gen) contains qualifying amount values.
 
-### Amounts or dates are wrong
+## Privacy and Security
 
-Check your CSV formatting:
-- Amounts should include dollar signs: `$150.00`
-- Dates should be formatted: `Nov 16, 2025` or `11/16/2025`
-- Column names must match exactly (case-sensitive)
+- All processing runs locally in your browser.
+- Donor data is not uploaded to a server by this app.
 
-### Browser says "Page unresponsive"
+## Browser Support
 
-This shouldn't happen with the current version, but if it does:
-- You might be processing too many donors at once (try splitting into smaller batches)
-- Close other browser tabs to free up memory
-- Try using the ZIP download option instead of individual downloads
-
-### Signature doesn't appear
-
-Check that:
-- File is PNG or JPEG format (not WebP)
-- File isn't corrupted
-- Signature has reasonable dimensions (not microscopic or gigantic)
-
-### Documents look wrong
-
-- Verify you're using the correct templates
-- Check that your CSV columns match the expected format
-- Review console output (press F12) for error messages
-
-## Browser compatibility
-
-Tested and working on:
-- ✅ Chrome/Edge 90+
-- ✅ Firefox 88+
-- ✅ Safari 14+
-
-Does **not** work on:
-- ❌ Internet Explorer (any version)
-- ❌ Very old browser versions
-
-## Privacy and security
-
-- **All processing happens locally** in your browser
-- **No data is uploaded** to any server
-- **No tracking or analytics** are included
-- **Safe for sensitive donor information**
-
-The tool only uses browser APIs to:
-- Read uploaded files
-- Generate PDFs
-- Trigger downloads
-
-Your donor data never leaves your computer.
-
-## Contributing
-
-Contributions are welcome! This tool was created for a specific use case but could be expanded. Potential improvements:
-
-- Support for other state tax credit forms
-- Additional CSV format support
-- Batch configuration saving/loading
-- Multi-page letter support
-- Additional placeholder variables
-- Internationalization
-
-Please open an issue to discuss major changes before submitting a pull request.
-
-## License
-
-MIT License — see [LICENSE](LICENSE) file for details.
-
-This means you can use, modify, and distribute this tool freely, even for commercial purposes. Attribution is appreciated but not required.
-
-## Credits
-
-Created by Brian Curtis for Wild Bear Nature Center (Nederland, CO) and open-sourced for the benefit of other Colorado nonprofits.
-
-Built with:
-- [pdf-lib](https://pdf-lib.js.org/) by Andrew Dillon
-- [JSZip](https://stuk.github.io/jszip/) by Stuart Knightley
-- [Tailwind CSS](https://tailwindcss.com/) for styling
-
-## Support
-
-For questions, issues, or suggestions:
-- Open an issue on GitHub
-- Check existing issues for solutions
-- Review the troubleshooting section above
-
-This is a volunteer project, so response times may vary.
+Tested in current versions of:
+- Chrome / Edge
+- Firefox
+- Safari
 
 ## Changelog
 
-### Version 4.0 (January 2026)
-- Made organization info configurable (no longer hardcoded)
-- Fixed thank-you letter amount to include covered fees
-- State abbreviations truncated to 2 characters for DR1317
-- New file naming convention: `LastName_FirstName_DocType_Campaign_Date`
-- Support for Colorado Gives Day CSV format
-- Added campaign name field for better file organization
-- Embedded libraries for offline use (no CDN dependencies)
-- Added batching to prevent browser freezing on large batches
+### v5.0 (March 2026)
+- Updated for DR 1317 09/18/25 form design.
+- Added 4-page template extraction (pages 3 and 4 only).
+- Added Section D fields: signing date, signer title, signer phone.
+- Added Auto-Gen CSV support.
+- Updated DR 1317 coordinate mapping for Sections A-D.
+- Updated signature logic for Section D writable band.
+- Added signature image normalization (auto-trim margins) for stable placement.
 
-### Version 3.0 (November 2025)
-- Added thank-you letter generation
-- ZIP file download option
-- Progress tracking with visual progress bar
-- Support for multiple CSV formats
+### v4.x (January 2026)
+- Configurable org info and campaign naming.
+- Thank-you letter amount uses total donation.
+- Colorado Gives Day CSV support.
 
-### Version 2.0 (October 2025)
-- Switched to flattened PDF template approach
-- Improved signature aspect ratio preservation
-- Credit computation fix for lines 1-4
+## License
 
-### Version 1.0 (September 2025)
-- Initial release
-- Basic DR 1317 generation from CSV
+MIT. See `LICENSE`.

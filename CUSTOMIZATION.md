@@ -1,379 +1,220 @@
-# Customization guide
+# Customization Guide (v5)
 
-This guide provides detailed instructions for customizing the Colorado DR 1317 & Thank You Letter Generator for your organization.
+This guide covers customizing `dr1317-generator-v5.html` for the current DR 1317 form design.
 
-## Table of contents
+## Scope
 
-1. [Creating your letterhead](#creating-your-letterhead)
-2. [Customizing letter text](#customizing-letter-text)
-3. [Adjusting signature sizes](#adjusting-signature-sizes)
-4. [Modifying field positions](#modifying-field-positions)
-5. [Adding new placeholders](#adding-new-placeholders)
-6. [Changing file naming](#changing-file-naming)
+This document focuses on:
+- DR 1317 template and field mapping
+- Signature behavior (Section D)
+- Thank-you letter layout and placeholders
+- CSV format mappings
+- File naming and ZIP naming
 
-## Creating your letterhead
+## 1) DR 1317 Template Assumptions
 
-Your letterhead PDF serves as the template for thank-you letters. Follow these guidelines for best results.
+The generator is built for the 4-page flat DR 1317 template used by this project.
 
-### Design considerations
+Current behavior:
+- Loads the uploaded template PDF
+- Copies pages `[2, 3]` (0-based) into output
+- Writes all fields to those two pages
 
-**Essential elements:**
-- Organization logo
-- Organization name and address
-- Any branding elements (colors, patterns)
-- Optional: Board members list, tagline, website
+Code location:
+- `generateDR1317(donor)`
 
-**Critical spacing:**
-- Leave a blank rectangular area for letter text
-- Recommended: 4-5 inches wide × 7-8 inches tall
-- Position: Usually upper-left or center of page
-- The tool writes text starting from coordinates (183, 672) with max width 377px
-
-### Design tools
-
-You can create your letterhead in:
-- **Microsoft Word** — Use header/footer for branding, leave body blank
-- **Google Docs** — Same approach as Word
-- **Adobe InDesign** — Professional design option
-- **Canva** — User-friendly design platform
-- **LibreOffice Writer** — Free alternative to Word
-
-### Step-by-step in Google Docs
-
-1. Create a new document
-2. Set margins: File → Page setup → Set custom margins
-3. Insert → Header & footer → Header
-4. Add your logo and organization info to the header
-5. Optionally add a sidebar by:
-   - Insert → Drawing → New
-   - Create a rectangle for the sidebar
-   - Add text boxes with board member names, contact info, etc.
-   - Save and close
-6. Leave the main body area blank
-7. File → Download → PDF Document
-
-### Step-by-step in Microsoft Word
-
-1. Create a new document
-2. Insert → Header
-3. Add logo and organization info
-4. Use text boxes (Insert → Text Box) to create a sidebar if desired
-5. Leave the main body blank
-6. File → Save As → PDF
-
-### Testing your letterhead
-
-After creating your letterhead PDF:
-1. Use it to generate a test letter with sample data
-2. Check that text doesn't overlap with logos or branding
-3. Verify signature placement looks good
-4. Adjust if needed and regenerate
-
-## Customizing letter text
-
-Letter text templates use placeholders that get replaced with actual donor data.
-
-### Available placeholders
-
-- `{{date}}` — Current date when letter is generated (e.g., "January 21, 2026")
-- `{{firstName}}` — Donor's first name
-- `{{amount}}` — Total donation amount including fees (e.g., "$259.97")
-- `{{donationDate}}` — Date of donation (e.g., "January 2, 2025")
-- `{{preparerName}}` — Signer's name (from form input)
-- `{{preparerTitle}}` — Signer's title (from form input)
-
-### Example template structure
-
-```
-{{date}}
-
-Dear {{firstName}},
-
-[Opening paragraph with {{amount}} and {{donationDate}}]
-
-[Body paragraphs about impact and mission]
-
-[Optional quote or testimonial]
-
-[Closing paragraph]
-
-Thank you and enjoy your day.
-
-{{preparerName}}
-{{preparerTitle}}
-
-*[Tax-deductible disclaimer and organization info]*
-```
-
-### Writing guidelines
-
-**Do:**
-- Keep paragraphs short (3-5 sentences)
-- Use the donor's first name for personalization
-- Include specific impact statements
-- Add a call to action or invitation
-- Keep total length under 400 words
-- Use the special line "Thank you and enjoy your day." to trigger signature placement
-
-**Don't:**
-- Hardcode specific donor names or amounts
-- Make the letter too long (readability decreases)
-- Forget the tax disclaimer at the bottom
-- Remove or modify the placeholder syntax (`{{placeholder}}`)
-
-### Tax disclaimer template
-
-```
-*[Your Organization Name] is a 501(c)3 non-profit organization, and your donation is 100% tax deductible. It may also be eligible for the Colorado Child Care Tax Credit. Please consult your tax advisor. Note that no goods or services were exchanged for this contribution. This letter may be used for your IRS tax records. Tax ID # [Your EIN].*
-```
-
-## Adjusting signature sizes
-
-Signatures are scaled proportionally to fit within maximum dimensions.
-
-### Finding the code
-
-Open `dr1317-generator.html` in a text editor and search for:
-
-**For DR 1317 forms:**
+Current lines:
 ```javascript
-// Add signature
-if (signatureImg && signatureDimensions) {
-    const maxWidth = 200;  // Adjust this
-    const maxHeight = 50;  // Adjust this
+const [pg1, pg2] = await outDoc.copyPages(templateDoc, [2, 3]);
 ```
 
-**For thank-you letters:**
+If your source template changes page order, update these indices first.
+
+## 2) DR 1317 Field Coordinates
+
+Coordinates are hardcoded in `generateDR1317`.
+
+Coordinate system:
+- Origin `(0,0)` is bottom-left of page
+- Units are PDF points (`72 pt = 1 in`)
+
+Examples in v5:
+- Section A/B donor and org fields on page 1
+- Section C amounts/checkbox on page 2
+- Section D signer fields on page 2
+
+If text is misaligned:
+1. Confirm you uploaded the expected template.
+2. Adjust only the relevant `x` and `y` values by small increments (1-3 pt).
+3. Regenerate one donor and verify.
+
+## 3) Section D Signature Behavior (v5)
+
+### What changed
+
+v5 normalizes uploaded signature images before embedding:
+- Reads image
+- Detects visible ink bounds
+- Trims extra white/transparent margins
+- Stores trimmed PNG for consistent placement
+
+This prevents visual drift caused by large blank margins in the source signature file.
+
+### Where to edit
+
+Normalization code:
+- `normalizeSignatureImage(file)`
+- helpers: `readFileAsDataURL`, `loadImageFromDataURL`, `findInkBounds`
+
+Section D draw code:
 ```javascript
-if (signatureImg) {
-    const maxSigWidth = 200;  // Adjust this
-    const maxSigHeight = 60;  // Adjust this
+const sigBox = { x: 39, y: 372, width: 414, height: 24 };
+const bottomPadding = 0.5;
+const topPadding = 0.5;
+const maxW = sigBox.width;
+const maxH = sigBox.height - topPadding - bottomPadding;
 ```
 
-### Making adjustments
+### Safe adjustments
 
-To make signatures **larger**:
-- Increase both maxWidth and maxHeight proportionally
-- Example: Change 200 → 250 and 50 → 63
+- Move signature horizontally: change `sigBox.x`
+- Move signature row vertically: change `sigBox.y`
+- Limit max signature height: change `sigBox.height` or paddings
 
-To make signatures **smaller**:
-- Decrease both maxWidth and maxHeight proportionally
-- Example: Change 200 → 150 and 50 → 38
+Keep `maxH` at or below the writable band height so signatures stay inside Section D.
 
-**Important:** Keep the aspect ratio similar to avoid distortion. If you double the width, roughly double the height.
+### Important
 
-### Testing
+The app does not intentionally draw a red/orange reference line in final output.
+If you see one, it came from a separate debug/test PDF.
 
-After making changes:
-1. Save the HTML file
-2. Open it in your browser (refresh if already open)
-3. Generate a test document
-4. Check signature size
-5. Adjust again if needed
+## 4) DR 1317 Amount Logic
 
-## Modifying field positions
-
-The tool draws text at specific coordinates on the DR 1317 form.
-
-### Understanding coordinates
-
-Coordinates are in PDF points (72 points = 1 inch):
-- X coordinate: Left to right (0 = left edge)
-- Y coordinate: Bottom to top (0 = bottom edge)
-- Origin (0,0) is at bottom-left corner of page
-
-### Field coordinate table
-
-The tool uses these coordinates for DR 1317 forms:
-
+Inside `generateDR1317`:
 ```javascript
-const fieldCoordinates = {
-    'Organization Name': { x: 37.2095, y: 624.72, width: 540.2945, height: 16.476 },
-    'License Number or Colorado Account Number': { x: 37.3399, y: 600.6, width: 269.4181, height: 16.837 },
-    'FEIN': { x: 305.888, y: 600.6, width: 271.243, height: 16.837 },
-    // ... more fields
-};
+const intendedRaw = parseAmount(donor['Intended Amount'] || '0');
+const line2 = Math.ceil(intendedRaw);
+const line3 = Math.ceil(line2 * 0.5);
 ```
 
-### Adjusting positions
+If your policy changes (for example rounding rules), update these expressions.
 
-If text appears misaligned:
+## 5) CSV Format Detection and Mapping
 
-1. Find the field in the `fieldCoordinates` object
-2. Adjust x and y values:
-   - Increase x to move right
-   - Decrease x to move left
-   - Increase y to move up
-   - Decrease y to move down
-3. Adjust by small amounts (2-5 points at a time)
-4. Test and iterate
+Code path:
+- CSV upload handler
+- `normalizeDonorData(raw, isCGD, isAutoGen)`
 
-### Text area for letters
+Detection:
+- CGD if header contains `Donor First Name`
+- Auto-Gen if not CGD and header contains `Mailing Address` or `Intended Amt`
+- Otherwise treated as Harness
 
-The letter text area is defined by:
+### Add another format
 
+1. Add detection condition in CSV upload handler.
+2. Add a mapping branch in `normalizeDonorData`.
+3. Map incoming fields to internal keys:
+   - `First Name`, `Last Name`, `Date`, `Street Address 1`, `City`, `State`, `Zip Code`
+   - `Total Donation`, `Fees Covered`, `Intended Amount`
+
+## 6) Thank-You Letter Layout
+
+Code path:
+- `generateThankYouLetter(donor)`
+
+Current text area settings:
 ```javascript
-const textX = 183;  // Left edge of text area
-const textY = 672;  // Top edge of text area
-const maxWidth = 377; // Width of text area
-```
-
-Adjust these if your letterhead has different spacing requirements.
-
-## Adding new placeholders
-
-To add custom placeholders to letter templates:
-
-### 1. Add to CSV data structure
-
-If the data comes from your CSV, it's already available. If it's calculated or comes from another source, you'll need to add it.
-
-### 2. Update placeholder replacement
-
-Find this section in the code:
-
-```javascript
-// Replace placeholders in template
-let letterText = letterTextTemplate;
-letterText = letterText.replace(/\{\{date\}\}/g, currentDate);
-letterText = letterText.replace(/\{\{firstName\}\}/g, donorFirstName);
-letterText = letterText.replace(/\{\{amount\}\}/g, `$${totalDonation.toFixed(2)}`);
-```
-
-Add your new placeholder:
-
-```javascript
-letterText = letterText.replace(/\{\{yourNewPlaceholder\}\}/g, yourNewValue);
-```
-
-### 3. Update template
-
-Add the placeholder to your letter text template:
-
-```
-Thank you for your {{amount}} donation to support {{yourNewPlaceholder}}.
-```
-
-### Example: Adding organization name
-
-```javascript
-// In the letter generation function, add:
-const orgName = document.getElementById('orgName').value;
-letterText = letterText.replace(/\{\{orgName\}\}/g, orgName);
-```
-
-Then use in template:
-```
-Thank you for your donation to {{orgName}}.
-```
-
-## Changing file naming
-
-File names are generated in the `generateDR1317` and `generateThankYouLetter` functions.
-
-### Current format
-
-- DR 1317: `LastName_FirstName_DR1317_Campaign_Date.pdf`
-- Thank you: `LastName_FirstName_TY_Campaign_Date.pdf`
-
-### Customizing format
-
-Find these lines:
-
-```javascript
-// DR 1317 naming
-const fileName = `${donorLastName}_${donorFirstName}_DR1317_${campaign}_${dateForFile}.pdf`;
-
-// Thank you naming
-const fileName = `${donorLastName}_${donorFirstName}_TY_${campaign}_${dateForFile}.pdf`;
-```
-
-### Examples of alternative formats
-
-**Reverse order (FirstName_LastName):**
-```javascript
-const fileName = `${donorFirstName}_${donorLastName}_DR1317_${campaign}_${dateForFile}.pdf`;
-```
-
-**Add organization abbreviation:**
-```javascript
-const fileName = `ORG_${donorLastName}_${donorFirstName}_DR1317_${dateForFile}.pdf`;
-```
-
-**Different date format:**
-```javascript
-// Use the original date string instead of formatted version
-const fileName = `${donorLastName}_${donorFirstName}_DR1317_${donor['Date']}.pdf`;
-```
-
-**Include donation amount:**
-```javascript
-const fileName = `${donorLastName}_${donorFirstName}_${totalDonation}_DR1317.pdf`;
-```
-
-## Advanced customizations
-
-### Supporting additional CSV formats
-
-To add support for another CSV format:
-
-1. Update the `normalizeDonorData` function
-2. Add detection logic based on column names
-3. Map columns to the standard internal format
-
-### Changing fonts
-
-The tool currently uses Helvetica (DR 1317) and Times Roman (letters). To change:
-
-```javascript
-// DR 1317 - find this line:
-const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-
-// Change to:
-const font = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-
-// Available standard fonts:
-// - Helvetica
-// - TimesRoman
-// - Courier
-// - HelveticaBold
-// - TimesRomanBold
-```
-
-### Adjusting text size
-
-Find these constants:
-
-```javascript
+const textX = 183;
+const textY = 672;
+const maxWidth = 377;
+const normalLineHeight = 14;
 const normalFontSize = 11;
 const footnoteFontSize = 9;
 ```
 
-Increase or decrease as needed. Test with longer and shorter text to ensure wrapping works correctly.
+Current signature area in letters:
+```javascript
+const maxSigWidth = 200;
+const maxSigHeight = 60;
+```
 
-## Getting help
+Signature appears only when the template text contains the exact line:
+- `Thank you and enjoy your day.`
 
-If you're making customizations and run into issues:
+## 7) Placeholders
 
-1. Open the browser console (F12) to see error messages
-2. Test changes incrementally (one at a time)
-3. Keep a backup of the working version
-4. Check the main README for troubleshooting tips
-5. Open a GitHub issue describing your customization and the problem
+Supported placeholders:
+- `{{date}}`
+- `{{firstName}}`
+- `{{amount}}`
+- `{{donationDate}}`
+- `{{preparerName}}`
+- `{{preparerTitle}}`
 
-## Contributing your customizations
+Replacement logic lives in `generateThankYouLetter`.
 
-If you've made improvements that would benefit others:
+To add a placeholder:
+1. Compute value in code.
+2. Add a replacement line.
+3. Use placeholder in `.txt` template.
 
-1. Fork the repository
-2. Make your changes
-3. Test thoroughly
-4. Submit a pull request with a clear description
-5. Include examples of what your changes enable
+Example:
+```javascript
+const campaign = document.getElementById('campaignName').value || 'WBNC';
+letterText = letterText.replace(/\{\{campaign\}\}/g, campaign);
+```
 
-We welcome contributions that:
-- Add new features
-- Improve usability
-- Fix bugs
-- Enhance documentation
-- Support additional use cases
+## 8) File Naming
+
+### DR 1317
+```javascript
+const fileName = `${donorLastName}_${donorFirstName}_DR1317_${campaign}_${dateForFile}.pdf`;
+```
+
+### Thank-you
+```javascript
+const fileName = `${donorLastName}_${donorFirstName}_TY_${campaign}_${dateForFile}.pdf`;
+```
+
+### ZIP
+```javascript
+link.download = `WBNC_Donor_Documents_${campaign}_${timestamp}.zip`;
+```
+
+## 9) Validation and Required Inputs
+
+`checkReadyToGenerate()` requires:
+- donor list loaded (`donors.length > 0`)
+- at least one output type checked
+- signature uploaded
+- DR template uploaded (if DR output enabled)
+- letterhead + letter text uploaded (if letter output enabled)
+
+If you add new required fields, update this function.
+
+## 10) Testing Checklist After Any Customization
+
+1. Load one donor CSV row.
+2. Generate DR 1317 only.
+3. Verify Section A-D alignment.
+4. Verify signature stays within Section D band.
+5. Generate thank-you only.
+6. Verify text wrapping and signature placement in letter.
+7. Run a 20+ donor batch and test ZIP output.
+
+## 11) Common Failure Modes
+
+- Wrong template version uploaded:
+  - Symptoms: all coordinates shifted, signature appears misplaced.
+- CSV headers not matching format mapping:
+  - Symptoms: donor count loads but fields blank/wrong.
+- Letter template missing trigger line:
+  - Symptoms: no signature on thank-you letter.
+
+## 12) Recommended Editing Workflow
+
+1. Copy `dr1317-generator-v5.html` to a dated backup.
+2. Make one change at a time.
+3. Test with 1 donor.
+4. Commit/document change notes before the next tweak.
