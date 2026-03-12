@@ -292,7 +292,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         });
         document.getElementById('letterTextTemplate').addEventListener('change', async (e) => {
             const file = e.target.files[0];
-            if (file) { letterTextTemplate = await file.text(); checkReadyToGenerate(); }
+            if (file) { letterTextTemplate = sanitizeLetterTemplate(await file.text()); checkReadyToGenerate(); }
         });
 
         document.getElementById('signatureImage').addEventListener('change', async (e) => {
@@ -856,6 +856,27 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         }
 
 
+
+                // ─── Letter template sanitizer ──────────────────────────────────────────────
+        // Defensively cleans any text file before use, regardless of which OS or editor
+        // produced it.  Handles the most common real-world hazards:
+        //   • BOM (U+FEFF) — silently prepended (or embedded) by Windows editors
+        //   • Carriage returns (\r) — Windows line endings
+        //   • Zero-width chars — can slip in from copy-paste or web sources
+        //   • Non-breaking spaces — look identical but WinAnsi treats them differently
+        //   • Double blank lines — happen when template authors hit Enter twice between
+        //     paragraphs; collapses any run of 3+ newlines down to exactly 2 (one blank
+        //     line separator), so the letter always fits on a single page
+        //   • Trailing whitespace on lines — cosmetic cleanup
+        function sanitizeLetterTemplate(raw) {
+            return raw
+                .replace(/[\r\uFEFF\u200B\u200C\u200D\uFFFD]/g, '') // BOM, CR, zero-width
+                .replace(/\u00A0/g, ' ')           // non-breaking space → regular space
+                .replace(/\u00AD/g, '')            // soft hyphen → nothing
+                .replace(/\n{3,}/g, '\n\n')        // 3+ newlines → 2 (one blank line)
+                .split('\n').map(l => l.trimEnd()).join('\n') // trim trailing spaces
+                .trimEnd();                         // remove trailing blank lines
+        }
 
         async function generateThankYouLetter(donor) {
             const { PDFDocument, StandardFonts, rgb } = window.PDFLib;
