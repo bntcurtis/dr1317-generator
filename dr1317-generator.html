@@ -187,6 +187,21 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                         </div>
                         <div>
+                            <label class="block text-sm text-gray-600 mb-1">Letterhead layout</label>
+                            <div class="space-y-1">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" name="letterheadLayout" value="sidebar" checked
+                                        class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-2 focus:ring-indigo-500">
+                                    <span class="text-gray-700 text-sm">With board of directors sidebar (text starts to the right of the sidebar)</span>
+                                </label>
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" name="letterheadLayout" value="full"
+                                        class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-2 focus:ring-indigo-500">
+                                    <span class="text-gray-700 text-sm">No sidebar (text centered on the page with 1-inch margins)</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
                             <label class="block text-sm text-gray-600 mb-1">Letter text template (.txt)</label>
                             <input type="file" id="letterTextTemplate" accept=".txt"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg">
@@ -236,6 +251,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     </div>
 
     <script>
+        // Version 5.1 - November 2026
+        // - Letterhead layout option: with board sidebar, or no sidebar (centered text)
         // Version 5.0 - March 2026
         // Changes from v4.x:
         // - Updated for new DR 1317 (09/18/25) form
@@ -911,10 +928,23 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             letterText = letterText.replace(/\{\{preparerName\}\}/g, preparerName);
             letterText = letterText.replace(/\{\{preparerTitle\}\}/g, preparerTitle);
             
-            // Text area configuration (adjusted positioning)
-            const textX = 183;  // Moved left by ~2cm
-            const textY = 672;  // Moved down by ~1cm
-            const maxWidth = 377; // Increased width since we moved left
+            // Text area configuration
+            // "sidebar": letterhead has the board of directors list down the left side,
+            //            so text starts to the right of it.
+            // "full":    letterhead has no sidebar, so text is centered on the page
+            //            with equal left and right margins.
+            const layout = (document.querySelector('input[name="letterheadLayout"]:checked') || {}).value || 'sidebar';
+            const { width: pageWidth } = firstPage.getSize();
+            let textX, maxWidth;
+            if (layout === 'full') {
+                const sideMargin = 72; // 1 inch on each side
+                textX = sideMargin;
+                maxWidth = pageWidth - sideMargin * 2;
+            } else {
+                textX = 183;
+                maxWidth = 377;
+            }
+            const textY = 672;
             const normalLineHeight = 14;
             const normalFontSize = 11;
             const footnoteFontSize = 9;

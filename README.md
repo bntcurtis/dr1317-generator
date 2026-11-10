@@ -16,6 +16,7 @@ Version 5 is aligned to the current Colorado DR 1317 layout (09/18/25 form desig
 - Places signature in Section D inside the signature band.
 - Auto-trims signature image margins (white/transparent edges) before embedding, so signature placement is consistent.
 - Generates thank-you letters from a PDF letterhead + text template with placeholders.
+- Supports letterheads with or without the board of directors sidebar. Choose **Letterhead layout** under the letter templates: "With board of directors sidebar" places text to the right of the sidebar; "No sidebar" centers the text on the page with 1-inch margins.
 - Supports individual PDF downloads or one ZIP download.
 
 ## Main File
@@ -35,6 +36,7 @@ Use:
 
 ### If generating thank-you letters
 - Letterhead PDF
+- Letterhead layout (with sidebar or no sidebar)
 - Letter text template (`.txt`)
 
 ## DR 1317 Template Requirement

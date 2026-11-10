@@ -118,11 +118,16 @@ Detection:
 Code path:
 - `generateThankYouLetter(donor)`
 
-Current text area settings:
+Text area settings depend on the **Letterhead layout** option in the UI (`letterheadLayout` radio):
+
+| Layout | `textX` | `maxWidth` | Use when |
+|---|---|---|---|
+| `sidebar` (default) | `183` | `377` | Letterhead has the board of directors list down the left side |
+| `full` | `72` (1 inch) | page width minus 2 inches (`468` on letter size) | Letterhead has no sidebar; text is centered with equal margins |
+
+Shared settings:
 ```javascript
-const textX = 183;
 const textY = 672;
-const maxWidth = 377;
 const normalLineHeight = 14;
 const normalFontSize = 11;
 const footnoteFontSize = 9;
